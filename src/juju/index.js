@@ -186,6 +186,15 @@ async function fetchModelStatus(modelUUID, wsControllerURL, getState) {
       );
       if (isLoggedIn(wsControllerURL, getState())) {
         status = await conn.facades.client.fullStatus();
+        if (status.error) {
+          // XXX If there is an error fetching the full status it's likely that
+          // Juju can no longer access this model. At this moment we don't have
+          // a location to notify the user. In the new watcher model that's
+          // being implemented we will be able to surface this error in the
+          // model details page.
+          console.error(status.error);
+          return;
+        }
       }
       if (isLoggedIn(wsControllerURL, getState())) {
         const entities = Object.keys(status.applications).map((name) => ({
